@@ -2,18 +2,70 @@
 <html lang="ar">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>صفحتي</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج حفظ بيانات</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="container">
-        <h1>مرحباً 👋</h1>
-        <p>هذه صفحة ويب جاهزة للنشر على GitHub و Netlify و Firebase و Docker.</p>
+        <h1>تسجيل بيانات</h1>
+
+        <form id="dataForm">
+            <input type="text" id="name" placeholder="الاسم" required />
+            <input type="email" id="email" placeholder="الإيميل" required />
+            <textarea id="message" placeholder="الرسالة" required></textarea>
+            <button type="submit">حفظ البيانات</button>
+        </form>
+
+        <div id="status"></div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // TODO: ضع بيانات مشروع Firebase هنا
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const form = document.getElementById("dataForm");
+        const status = document.getElementById("status");
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const message = document.getElementById("message").value;
+
+            db.collection("submissions").add({
+                name,
+                email,
+                message,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            })
+                .then(() => {
+                    status.innerText = "تم حفظ البيانات بنجاح ✅";
+                    form.reset();
+                })
+                .catch((error) => {
+                    status.innerText = "حدث خطأ: " + error.message;
+                });
+        });
+    </script>
 </body>
 
 </html>
